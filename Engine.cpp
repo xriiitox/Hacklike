@@ -9,13 +9,13 @@ Engine::Engine(int screenWidth, int screenHeight) : gameStatus(STARTUP),
     std::string name = "Alloy_curses_12x12-export.png";
     assert(access( name.c_str(), F_OK ) != -1); // check if font file exists
     TCODConsole::setCustomFont("Alloy_curses_12x12-export.png", TCOD_FONT_LAYOUT_ASCII_INROW | TCOD_FONT_TYPE_GREYSCALE);
-    TCODConsole::initRoot(screenWidth,screenHeight,"libtcod C++ tutorial", false);
+    TCODConsole::initRoot(screenWidth,screenHeight,"hack-like", false);
     gui = new Gui();
 }
 
 void Engine::init() {
     player = new Actor(40,25,'@', "player", TCODColor::white);
-    player -> destructible = new PlayerDestructible(30,2,"your cadaver");
+    player -> destructible = new PlayerDestructible(30,2,"your corpse");
     player -> attacker = new Attacker(5);
     player -> ai = new PlayerAi();
     player -> container = new Container(26);
@@ -27,7 +27,7 @@ void Engine::init() {
     map = new Map(80,43);
     map->init(true);
     gui->message(TCODColor::red,
-        "Welcome stranger!\nPrepare to perish in the Tombs of the Ancient Kings.");
+        "Welcome, hacker!\nPrepare to ");
     gameStatus = STARTUP;
 }
 

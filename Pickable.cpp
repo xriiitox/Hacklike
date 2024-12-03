@@ -32,9 +32,9 @@ Pickable *Pickable::create(TCODZip &zip) {
     Pickable *pickable = nullptr;
     switch (type) {
         case HEALER : pickable = new Healer(0); break;
-        case LIGHTNING_BOLT : pickable = new LightningBolt(0,0); break;
+        case REMOTE_HACK : pickable = new RemoteHack(0,0); break;
         case CONFUSER : pickable = new Confuser(0,0); break;
-        case FIREBALL : pickable = new Fireball(0,0); break;
+        case TARGETED_HACK : pickable = new TargetedHack(0,0); break;
     }
     pickable -> load(zip);
     return pickable;
@@ -66,21 +66,21 @@ void Healer::save(TCODZip &zip) {
 
 // Lightning Bolt
 
-LightningBolt::LightningBolt(float range, float damage)
+RemoteHack::RemoteHack(float range, float damage)
     : range(range), damage(damage) {
 }
 
-bool LightningBolt::use(Actor *owner, Actor *wearer) {
+bool RemoteHack::use(Actor *owner, Actor *wearer) {
     Actor *closestMonster = engine.getClosestMonster(wearer->x, wearer->y, range);
     if (! closestMonster) {
-        engine.gui->message(TCODColor::lightGrey, "No enemy is close enough to strike.");
+        engine.gui->message(TCODColor::lightGrey, "No enemy is close enough to hack.");
         return false;
     }
 
     if (closestMonster -> destructible) {
         // hit the closest monster for <damage> hp
         engine.gui->message(TCODColor::lightBlue,
-            "A lightning bolt strikes the %s with a loud thunder!\n"
+            "Your remote hack reveals the %s's password!!\n"
             "The damage is %g hit points.",
             closestMonster->name, damage);
         closestMonster->destructible->takeDamage(closestMonster, damage);
@@ -88,43 +88,48 @@ bool LightningBolt::use(Actor *owner, Actor *wearer) {
     return Pickable::use(owner, wearer);
 }
 
-void LightningBolt::load(TCODZip &zip) {
+void RemoteHack::load(TCODZip &zip) {
     range = zip.getFloat();
     damage = zip.getFloat();
 }
 
-void LightningBolt::save(TCODZip &zip) {
-    zip.putInt(LIGHTNING_BOLT);
+void RemoteHack::save(TCODZip &zip) {
+    zip.putInt(REMOTE_HACK);
     zip.putFloat(range);
     zip.putFloat(damage);
 }
 
 // Fireball
 
-Fireball::Fireball(float range, float damage) : LightningBolt(range, damage) {
+TargetedHack::TargetedHack(float range, float damage) : RemoteHack(range, damage) {
 }
 
-bool Fireball::use(Actor *owner, Actor *wearer) {
-    engine.gui->message(TCODColor::cyan, "Left-click a target tile for the fireball,\nor right-click to cancel.");
+bool TargetedHack::use(Actor *owner, Actor *wearer) {
+    engine.gui->message(TCODColor::cyan, "Left-click a target tile for the hack,\nor right-click to cancel.");
     int x, y;
     if (! engine.pickATile(&x, &y)) {
         return false;
     }
+    TCODRandom *rng = TCODRandom::getInstance();
 
-    // burn everything in range (including player)
-    engine.gui->message(TCODColor::orange, "The fireball explodes, burning everything within %g tiles!", range);
-    for (auto actor : engine.actors) {
-        if (actor -> destructible && !actor->destructible->isDead() && actor->getDistance(x,y) <= range) {
-            engine.gui->message(TCODColor::orange, "The %s gets burned for %g hit points.", actor->name, damage);
-            actor->destructible->takeDamage(actor, damage);
+    TCOD_dice_t d20 = {1, 20};
+
+    if (rng->diceRoll(d20) > 6) {
+        // burn everything in range (including player)
+        engine.gui->message(TCODColor::orange, "The hack succeeds, breaching everything within %g tiles!", range);
+        for (auto actor : engine.actors) {
+            if (actor -> destructible && !actor->destructible->isDead() && actor->getDistance(x,y) <= range) {
+                engine.gui->message(TCODColor::orange, "The %s is ruptured for %g hit points!", actor->name, damage);
+                actor->destructible->takeDamage(actor, damage);
+            }
         }
     }
 
     return Pickable::use(owner, wearer);
 }
 
-void Fireball::save(TCODZip &zip) {
-    zip.putInt(FIREBALL);
+void TargetedHack::save(TCODZip &zip) {
+    zip.putInt(TARGETED_HACK);
     zip.putFloat(range);
     zip.putFloat(damage);
 }

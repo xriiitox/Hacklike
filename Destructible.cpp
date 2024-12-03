@@ -1,17 +1,17 @@
 #include <stdio.h>
+#include <memory>
+#include <cstring>
 #include "main.hpp"
 
-Destructible::Destructible(float maxHp, float defense, const char *corpseName) :
-    maxHp(maxHp),hp(maxHp),defense(defense) {
-    if (corpseName == nullptr) {
-        this->corpseName = nullptr;
-    } else {
-        this->corpseName = strdup(corpseName);
+Destructible::Destructible(float maxHp, float defense, const char *corpseName, int xp) :
+    maxHp(maxHp),hp(maxHp),defense(defense),xp(xp) {
+    if (corpseName != nullptr) {
+        this->corpseName = std::make_unique<char[]>(std::strlen(corpseName) + 1);
+        std::strcpy(this->corpseName.get(), corpseName);
     }
 }
 
 Destructible::~Destructible() {
-    if (corpseName != nullptr) free((char*)corpseName);
 }
 
 
@@ -32,8 +32,7 @@ void Destructible::die(Actor* owner) {
     // transform the actor into a corpse
     owner->ch = '%';
     owner->col = TCODColor::darkRed;
-    if (corpseName != nullptr) free((char*)corpseName); // Free the old corpseName
-    this->corpseName = strdup(owner->name);
+    owner->name = corpseName.get();
     owner->blocks = false;
     // make sure corpses are drawn before living actors
     engine.sendToBack(owner);
@@ -52,18 +51,20 @@ void Destructible::load(TCODZip &zip) {
     maxHp = zip.getFloat();
     hp = zip.getFloat();
     defense = zip.getFloat();
-    corpseName=strdup(zip.getString());
+    const char* name = zip.getString();
+    corpseName=std::make_unique<char[]>(std::strlen(name)+1);
+    std::strcpy(corpseName.get(), name);
 }
 
 void Destructible::save(TCODZip &zip) {
     zip.putFloat(maxHp);
     zip.putFloat(hp);
     zip.putFloat(defense);
-    zip.putString(corpseName);
+    zip.putString(corpseName.get());
 }
 
-MonsterDestructible::MonsterDestructible(float maxHp, float defense, const char *corpseName) :
-    Destructible(maxHp, defense, corpseName) {
+MonsterDestructible::MonsterDestructible(float maxHp, float defense, const char *corpseName, int xp) :
+    Destructible(maxHp, defense, corpseName, xp) {
 }
 
 void MonsterDestructible::save(TCODZip &zip) {
@@ -72,7 +73,7 @@ void MonsterDestructible::save(TCODZip &zip) {
 }
 
 PlayerDestructible::PlayerDestructible(float maxHp, float defense, const char *corpseName) :
-    Destructible(maxHp, defense, corpseName) {
+    Destructible(maxHp, defense, corpseName, 0) {
 }
 
 void PlayerDestructible::save(TCODZip &zip) {
@@ -83,7 +84,8 @@ void PlayerDestructible::save(TCODZip &zip) {
 void MonsterDestructible::die(Actor *owner) {
     // transform it into a nasty corpse! it doesn't block, can't be
     // attacked and doesn't move
-    engine.gui->message(TCODColor::lightGrey,"%s is dead",owner->name);
+    engine.gui->message(TCODColor::lightGrey,"%s is dead. You gain %d xp",owner->name, xp);
+    engine.player->destructible->xp += xp;
     Destructible::die(owner);
 }
 
@@ -97,7 +99,7 @@ Destructible *Destructible::create(TCODZip &zip) {
     DestructibleType type = static_cast<DestructibleType>(zip.getInt());
     Destructible *destructible = nullptr;
     switch (type) {
-        case MONSTER: destructible = new MonsterDestructible(0,0,nullptr); break;
+        case MONSTER: destructible = new MonsterDestructible(0,0,nullptr, 0); break;
         case PLAYER: destructible = new PlayerDestructible(0,0,nullptr); break;
     }
 

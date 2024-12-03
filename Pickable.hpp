@@ -9,7 +9,7 @@ public:
     virtual ~Pickable() {}
 protected:
     enum PickableType {
-        HEALER,LIGHTNING_BOLT,CONFUSER,FIREBALL
+        HEALER,REMOTE_HACK,CONFUSER,TARGETED_HACK
     };
 };
 
@@ -23,18 +23,18 @@ public:
     void save(TCODZip &zip);
 };
 
-class LightningBolt : public Pickable {
+class RemoteHack : public Pickable {
 public:
     float range,damage;
-    LightningBolt(float range, float damage);
+    RemoteHack(float range, float damage);
     bool use(Actor *owner, Actor *wearer);
     void load(TCODZip &zip);
     void save(TCODZip &zip);
 };
 
-class Fireball : public LightningBolt {
+class TargetedHack : public RemoteHack {
 public:
-    Fireball(float range, float damage);
+    TargetedHack(float range, float damage);
     bool use(Actor *owner, Actor *wearer);
     void save(TCODZip &zip);
 };

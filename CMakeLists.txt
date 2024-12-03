@@ -7,6 +7,8 @@ add_executable(untitled
         main.cpp
         Actor.hpp
         Actor.cpp
+        Ai.cpp
+        Ai.hpp
         Map.cpp
         Map.hpp
         Engine.cpp
@@ -32,4 +34,4 @@ file(COPY images.png DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 
 find_package(libtcod CONFIG REQUIRED)
-target_link_libraries(untitled PRIVATE libtcod::libtcod)
+target_link_libraries(untitled PRIVATE libtcod::libtcod )

@@ -168,14 +168,14 @@ void Map::addMonster(int x, int y) {
         // create an orc
         Actor *orc = new Actor(x, y, 'o', "orc",
             TCODColor::desaturatedGreen);
-        orc->destructible = new MonsterDestructible(10, 0, "dead orc");
+        orc->destructible = new MonsterDestructible(10, 0, "dead orc", 35);
         orc->attacker = new Attacker(3);
         orc->ai = new MonsterAi();
         engine.actors.push(orc);
     } else {
         // create a troll
         Actor *troll = new Actor(x, y, 'T', "troll", TCODColor::darkerGreen);
-        troll->destructible = new MonsterDestructible(16, 1, "troll carcass");
+        troll->destructible = new MonsterDestructible(16, 1, "troll carcass", 100);
         troll->attacker = new Attacker(4);
         troll->ai = new MonsterAi();
         engine.actors.push(troll);
@@ -186,22 +186,22 @@ void Map::addItem(int x, int y) {
     TCODRandom *rng = TCODRandom::getInstance();
     int dice = rng->getInt(0, 100);
     if (dice < 70) {
-        Actor *healthPotion = new Actor(x,y,'!', "health potion", TCODColor::violet);
-        healthPotion->blocks = false;
-        healthPotion->pickable = new Healer(4);
-        engine.actors.push(healthPotion);
+        Actor *batteryPack = new Actor(x,y,'!', "battery pack", TCODColor::violet);
+        batteryPack->blocks = false;
+        batteryPack->pickable = new Healer(4);
+        engine.actors.push(batteryPack);
     } else if (dice < 70 + 10) {
-        // create a scroll of lightning bolt
-        Actor *scrollOfLightningBolt = new Actor(x, y, '#', "scroll of lightning bolt", TCODColor::lightYellow);
-        scrollOfLightningBolt->blocks = false;
-        scrollOfLightningBolt->pickable = new LightningBolt(5, 20);
-        engine.actors.push(scrollOfLightningBolt);
+        // create a remote hack
+        Actor *remoteHack = new Actor(x, y, '#', "remote hack", TCODColor::lightYellow);
+        remoteHack->blocks = false;
+        remoteHack->pickable = new RemoteHack(5, 20);
+        engine.actors.push(remoteHack);
     } else if (dice < 70 + 10 + 10) {
-        // create a scroll of fireball
-        Actor *scrollOfFireball = new Actor(x,y,'#', "scroll of fireball", TCODColor::lightYellow);
-        scrollOfFireball->blocks = false;
-        scrollOfFireball->pickable = new Fireball(3,12);
-        engine.actors.push(scrollOfFireball);
+        // create a targeted hack
+        Actor *targetedHack = new Actor(x,y,'#', "targeted hack", TCODColor::lightYellow);
+        targetedHack->blocks = false;
+        targetedHack->pickable = new TargetedHack(3,12);
+        engine.actors.push(targetedHack);
     } else {
         // create a scroll of confusion
         Actor *scrollOfConfusion = new Actor(x,y,'#',"scroll of confusion", TCODColor::lightYellow);

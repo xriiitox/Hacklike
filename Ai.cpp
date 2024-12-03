@@ -17,8 +17,45 @@ Ai *Ai::create(TCODZip &zip) {
     return ai;
 }
 
+PlayerAi::PlayerAi() : xpLevel(1) {
+}
+
+const int LEVEL_UP_BASE=200;
+const int LEVEL_UP_FACTOR=150;
+
+int PlayerAi::getNextLevelXp() {
+    return LEVEL_UP_BASE + xpLevel*LEVEL_UP_FACTOR;
+}
+
+
 
 void PlayerAi::update(Actor *owner) {
+    int levelUpXp = getNextLevelXp();
+    if (owner -> destructible -> xp >= levelUpXp) {
+        xpLevel++;
+        owner->destructible->xp -= levelUpXp;
+        engine.gui->message(TCODColor::yellow, "Your hacking skills grow stronger! You reached level %d", xpLevel);
+
+        engine.gui->menu.clear();
+        engine.gui->menu.addItem(Menu::REDUNDANCY, "Redundancy (+20HP)");
+        engine.gui->menu.addItem(Menu::SIGNAL, "Signal (+1 attack)");
+        engine.gui->menu.addItem(Menu::FIREWALL, "Firewall (+1 defense)");
+        Menu::MenuItemCode menuItem = engine.gui->menu.pick(Menu::PAUSE);
+
+        switch (menuItem) {
+            case Menu::REDUNDANCY:
+                owner->destructible->maxHp += 20;
+                owner->destructible->hp += 20;
+                break;
+            case Menu::SIGNAL:
+                owner->attacker->power += 1;
+                break;
+            case Menu::FIREWALL:
+                owner->destructible->defense += 1;
+                break;
+            default: break;
+        }
+    }
     if ( owner->destructible && owner->destructible->isDead() ) {
         return;
     }
@@ -103,10 +140,10 @@ void PlayerAi::handleActionKey(Actor *owner, int ascii) {
             }
         }
         break;
-        case '>':
+        case '.':
             if (engine.lastKey.shift && engine.stairs->x == owner->x && engine.stairs->y == owner->y) {
                 engine.nextLevel();
-            } else {
+            } else if (engine.lastKey.shift) {
                 engine.gui->message(TCODColor::lightGrey, "There are no stairs here.");
             }
         break;
