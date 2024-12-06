@@ -139,11 +139,15 @@ void Map::render() const {
     for (int x=0; x<width; x++) {
         for (int y=0; y<height; y++) {
             if (isInFov(x,y)) {
-                TCODConsole::root->setCharBackground( x,y,
+                TCODConsole::root->setCharForeground( x,y,
                 isWall(x,y) ? lightWall : lightGround);
+                TCODConsole::root->setChar( x,y,
+                isWall(x,y) ? '#' : '.');
             } else if (isExplored(x,y)) {
-                TCODConsole::root->setCharBackground( x,y,
+                TCODConsole::root->setCharForeground( x,y,
                 isWall(x,y) ? darkWall : darkGround);
+                TCODConsole::root->setChar( x,y,
+                isWall(x,y) ? '#' : '.');
             }
         }
     }
@@ -165,20 +169,20 @@ bool Map::canWalk(int x, int y) const {
 void Map::addMonster(int x, int y) {
     TCODRandom *rng = TCODRandom::getInstance();
     if (rng->getInt(0,100) < 80) {
-        // create an orc
-        Actor *orc = new Actor(x, y, 'o', "orc",
+        // create an script_kiddie
+        Actor *script_kiddie = new Actor(x, y, 's', "script kiddie",
             TCODColor::desaturatedGreen);
-        orc->destructible = new MonsterDestructible(10, 0, "dead orc", 35);
-        orc->attacker = new Attacker(3);
-        orc->ai = new MonsterAi();
-        engine.actors.push(orc);
+        script_kiddie->destructible = new MonsterDestructible(10, 0, "dead script kiddie", 35);
+        script_kiddie->attacker = new Attacker(3);
+        script_kiddie->ai = new MonsterAi();
+        engine.actors.push(script_kiddie);
     } else {
-        // create a troll
-        Actor *troll = new Actor(x, y, 'T', "troll", TCODColor::darkerGreen);
-        troll->destructible = new MonsterDestructible(16, 1, "troll carcass", 100);
-        troll->attacker = new Attacker(4);
-        troll->ai = new MonsterAi();
-        engine.actors.push(troll);
+        // create a blackhat
+        Actor *blackhat = new Actor(x, y, 'B', "blackhat", TCODColor::darkerGreen);
+        blackhat->destructible = new MonsterDestructible(16, 1, "asleep blackhat", 100);
+        blackhat->attacker = new Attacker(4);
+        blackhat->ai = new MonsterAi();
+        engine.actors.push(blackhat);
     }
 }
 
@@ -204,10 +208,10 @@ void Map::addItem(int x, int y) {
         engine.actors.push(targetedHack);
     } else {
         // create a scroll of confusion
-        Actor *scrollOfConfusion = new Actor(x,y,'#',"scroll of confusion", TCODColor::lightYellow);
-        scrollOfConfusion->blocks = false;
-        scrollOfConfusion->pickable = new Confuser(10,8);
-        engine.actors.push(scrollOfConfusion);
+        Actor *phishingEmail = new Actor(x,y,'#',"phishing email", TCODColor::lightYellow);
+        phishingEmail->blocks = false;
+        phishingEmail->pickable = new Confuser(10,8);
+        engine.actors.push(phishingEmail);
     }
 }
 

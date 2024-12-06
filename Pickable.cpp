@@ -64,7 +64,7 @@ void Healer::save(TCODZip &zip) {
     zip.putFloat(amount);
 }
 
-// Lightning Bolt
+// Remote Hack
 
 RemoteHack::RemoteHack(float range, float damage)
     : range(range), damage(damage) {
@@ -119,7 +119,7 @@ bool TargetedHack::use(Actor *owner, Actor *wearer) {
         engine.gui->message(TCODColor::orange, "The hack succeeds, breaching everything within %g tiles!", range);
         for (auto actor : engine.actors) {
             if (actor -> destructible && !actor->destructible->isDead() && actor->getDistance(x,y) <= range) {
-                engine.gui->message(TCODColor::orange, "The %s is ruptured for %g hit points!", actor->name, damage);
+                engine.gui->message(TCODColor::orange, "The %s is breached for %g hit points!", actor->name, damage);
                 actor->destructible->takeDamage(actor, damage);
             }
         }
@@ -140,7 +140,7 @@ Confuser::Confuser(int nbTurns, float range) : nbTurns(nbTurns), range(range) {
 }
 
 bool Confuser::use(Actor *owner, Actor *wearer) {
-    engine.gui->message(TCODColor::cyan, "Left click an enemy to confuse it,\nor right-click to cancel.");
+    engine.gui->message(TCODColor::cyan, "Left click an enemy to phish it,\nor right-click to cancel.");
     int x, y;
     if (! engine.pickATile(&x,&y,range)) {
         return false;
@@ -154,7 +154,7 @@ bool Confuser::use(Actor *owner, Actor *wearer) {
     Ai *confusedAi = new ConfusedMonsterAi(nbTurns, actor->ai);
     actor -> ai = confusedAi;
 
-    engine.gui->message(TCODColor::lightGreen, "The eyes of the %s look vacant,\nas he starts to stumble around!", actor->name);
+    engine.gui->message(TCODColor::lightGreen, "The %s's computer looks strange,\nand it starts to stumble around!", actor->name);
 
     return Pickable::use(owner, wearer);
 }

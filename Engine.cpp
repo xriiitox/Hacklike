@@ -27,7 +27,7 @@ void Engine::init() {
     map = new Map(80,43);
     map->init(true);
     gui->message(TCODColor::red,
-        "Welcome, hacker!\nPrepare to ");
+        "Welcome, hacker!\nPrepare to breach the system and uncover secrets within.");
     gameStatus = STARTUP;
 }
 
@@ -161,7 +161,7 @@ void Engine::nextLevel() {
     level++;
     gui->message(TCODColor::lightViolet, "You take a moment to rest, and recover your strength.");
     player->destructible->heal(player->destructible->maxHp/2);
-    gui->message(TCODColor::red, "After a rare moment of peace, you descend\ndeeper into the heart of the dungeon...");
+    gui->message(TCODColor::red, "After a rare moment of peace, you descend\ndeeper into the depths...");
 
     delete map;
     for (Actor **it = actors.begin(); it != actors.end(); it++) {

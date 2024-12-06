@@ -30,7 +30,7 @@ add_executable(untitled
 )
 
 file(COPY Alloy_curses_12x12-export.png DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-file(COPY images.png DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+file(COPY matrix.png DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 
 find_package(libtcod CONFIG REQUIRED)
